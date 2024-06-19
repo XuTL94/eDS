@@ -28,7 +28,7 @@ allprojects {
         set("commonsLangVersion", "3.14.0")
         set("slf4jVersion", "1.7.36")
         set("logbackVersion", "1.2.11")
-        set("mybatisPlusVersion", "3.5.2")
+        set("mybatisPlusVersion", "3.5.7")
         set("appiumVersion", "9.2.2")
         set("seleniumVersion", "4.20.0")
         set("junitVersion", "5.8.2")

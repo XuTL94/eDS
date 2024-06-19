@@ -13,7 +13,7 @@ public class ResponseRateData {
      * 主键，自动递增
      */
     @TableId
-    public Long id;
+    public String id;
 
     /**
      * 类型，例如设备或聊天对象（0商家 1顾客）

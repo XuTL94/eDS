@@ -10,8 +10,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.rememberWindowState
-import pdd.responserate.data.ResponseRateTypeOptions
-import pdd.responserate.data.loadResponseRateData
+import pdd.responserate.datafuntion.ResponseRateTypeOptions
+import pdd.responserate.datafuntion.deleteResponseRateData
+import pdd.responserate.datafuntion.loadResponseRateData
+import pdd.responserate.datafuntion.saveResponseRateData
 import ui.theme.AppTheme
 
 
@@ -47,11 +49,10 @@ fun HomeScreen() {
             tableForm = tableForm,
             loadData = { page, pageSize -> loadResponseRateData(page, pageSize) },
             onSave = { data ->
-                val dataList = data.toList()
-                println("Current data: $dataList")
+                saveResponseRateData(data)
             },
             onDelete = { data ->
-                println(data)
+                deleteResponseRateData(data)
             },
             onAdd = {
                 showAddDeviceDialog = true

@@ -8,19 +8,20 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.unit.*
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
 import com.xtl.ebusiness.entity.ResponseRateData
 import com.xtl.ebusiness.service.ResponseRateDataService
-import org.springframework.beans.factory.annotation.Autowired
-import pdd.responserate.data.ResponseRateTypeOptions
+import com.xtl.ecore.utils.SpringUtils
+import pdd.responserate.datafuntion.ResponseRateTypeOptions
 import kotlin.math.roundToInt
 
-@Autowired
-lateinit var responseRateDataService: ResponseRateDataService
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DraggableAddDeviceDialogContent(onClose: () -> Unit) {
+fun DraggableAddDeviceDialogContent(
+    onClose: () -> Unit
+) {
     var type by remember { mutableStateOf("") }
     var deviceId by remember { mutableStateOf("") }
     var chatName by remember { mutableStateOf("") }
@@ -108,7 +109,12 @@ fun DraggableAddDeviceDialogContent(onClose: () -> Unit) {
             Spacer(modifier = Modifier.width(8.dp))
             Button(onClick = {
                 val success = addResponseRateData(type, deviceId, chatName)
-                dialogMessage = if (success) "添加成功" else "添加失败"
+                dialogMessage = if (success) {
+                    TableUtils.refreshDataCallback?.invoke()
+                    "添加成功"
+                } else {
+                    "添加失败"
+                }
                 showAddDate = true
             }) {
                 Text("添加")
@@ -130,8 +136,11 @@ fun DraggableAddDeviceDialogContent(onClose: () -> Unit) {
     }
 }
 
+
 fun addResponseRateData(type: String, deviceId: String, chatName: String): Boolean {
-    // 这里是添加响应率数据的逻辑
+
+    var responseRateDataService = SpringUtils.getBean(ResponseRateDataService::class.java)
+
     return try {
         val responseRateData = ResponseRateData().apply {
             this.type = type
@@ -139,7 +148,6 @@ fun addResponseRateData(type: String, deviceId: String, chatName: String): Boole
             this.chatName = chatName
         }
         responseRateDataService.save(responseRateData)
-        println("添加数据: 类型=$type, 设备ID=$deviceId, 聊天对象名称=$chatName")
         true
     } catch (e: Exception) {
         e.printStackTrace()

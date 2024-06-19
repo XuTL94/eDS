@@ -28,8 +28,11 @@ dependencies {
     implementation("org.apache.commons:commons-lang3:${rootProject.extra["commonsLangVersion"]}")
     implementation("org.slf4j:slf4j-api:${rootProject.extra["slf4jVersion"]}")
     implementation("ch.qos.logback:logback-classic:${rootProject.extra["logbackVersion"]}")
+
     implementation("com.baomidou:mybatis-plus-boot-starter:${rootProject.extra["mybatisPlusVersion"]}")
     implementation("com.baomidou:mybatis-plus-annotation:${rootProject.extra["mybatisPlusVersion"]}")
+    implementation("com.github.pagehelper:pagehelper-spring-boot-starter:2.1.0")
+
     implementation("io.appium:java-client:${rootProject.extra["appiumVersion"]}")
     implementation("org.seleniumhq.selenium:selenium-java:${rootProject.extra["seleniumVersion"]}")
     implementation("org.seleniumhq.selenium:selenium-api:${rootProject.extra["seleniumVersion"]}")

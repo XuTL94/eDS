@@ -92,12 +92,14 @@ object ObjectUtils {
 
 
 object TableUtils {
+    var refreshDataCallback: (() -> Unit) = {}
+
     @Composable
     fun <T : Any> EditableTable(
         // 表头、表格行单元格对象声明、数据加载渲染（通过表格行单元格对象声明）
         tableHead: Map<String, TableHeadObj>,
         tableForm: Map<String, TableFormObj>,
-        loadData: (page: Int, pageSize: Int) -> FormPageDataResult<T>,
+        loadData: (page: Long, pageSize: Long) -> FormPageDataResult<T>,
 
         // 新增保存删除回调函数
         onSave: (data: List<Any>) -> Unit,
@@ -105,24 +107,37 @@ object TableUtils {
         onAdd: () -> Unit,
 
         // 初始化表格大小以及分页
-        initialPageSize: Int = 10,
+        initialPageSize: Long = 10,
         tableWidth: Dp = 1200.dp,
         tableHeight: Dp = 600.dp
     ) {
-
-        // 动态数据绑定渲染（类型vue中动态渲染数据（不像原生JS需要手动重新设置值））
-        var currentPage by remember { mutableStateOf(0) }
+        // 动态数据绑定渲染
+        var currentPage by remember { mutableStateOf(1L) } // 初始页面设为1
         var pageSize by remember { mutableStateOf(initialPageSize) }
         var dataResult by remember { mutableStateOf(loadData(currentPage, pageSize)) }
         val paginatedData = remember { mutableStateListOf<T>().apply { addAll(dataResult.data) } }
         val selectedItems = remember { mutableStateListOf<Int>() }
+        var allSelected by remember { mutableStateOf(false) } // 表头选择状态
 
-        // 如果currentPage和pageSize变化，则触发下面的方法
-        LaunchedEffect(currentPage, pageSize) {
+        // 用于手动触发数据刷新
+        refreshDataCallback = {
             dataResult = loadData(currentPage, pageSize)
             paginatedData.clear()
             paginatedData.addAll(dataResult.data)
             selectedItems.clear()
+
+            if (paginatedData.isEmpty() && currentPage > 1) {
+                currentPage--
+                dataResult = loadData(currentPage, pageSize)
+                paginatedData.clear()
+                paginatedData.addAll(dataResult.data)
+                selectedItems.clear()
+            }
+        }
+
+        // 如果currentPage和pageSize变化，则触发下面的方法
+        LaunchedEffect(currentPage, pageSize) {
+            refreshDataCallback?.invoke()
         }
 
         // 总页数
@@ -141,7 +156,9 @@ object TableUtils {
             ) {
                 Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                     Button(
-                        onClick = { onAdd() },
+                        onClick = {
+                            onAdd()
+                        },
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
                         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
@@ -149,7 +166,10 @@ object TableUtils {
                         Text("新增", fontSize = 14.sp, color = MaterialTheme.colorScheme.onPrimary)
                     }
                     Button(
-                        onClick = { onSave(paginatedData) },
+                        onClick = {
+                            onSave(paginatedData)
+                            refreshDataCallback?.invoke()
+                        },
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
                         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
@@ -157,7 +177,10 @@ object TableUtils {
                         Text("保存", fontSize = 14.sp, color = MaterialTheme.colorScheme.onPrimary)
                     }
                     Button(
-                        onClick = { onDelete(paginatedData.filterIndexed { index, _ -> index in selectedItems }) },
+                        onClick = {
+                            onDelete(paginatedData.filterIndexed { index, _ -> index in selectedItems })
+                            refreshDataCallback?.invoke()
+                        },
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp),
                         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
@@ -192,10 +215,11 @@ object TableUtils {
                             paginatedData[index] = updatedData
                         },
                         onSelectAllChange = { isSelected ->
-                            // 不改变具体数据对象，仅用于 UI 层面的选择
+                            allSelected = isSelected
                         },
                         currentPage = currentPage,
-                        pageSize = pageSize
+                        pageSize = pageSize,
+                        allSelected = allSelected
                     )
                 }
 
@@ -220,22 +244,18 @@ object TableUtils {
                     currentPage = currentPage,
                     totalPages = totalPages,
                     onPrevious = {
-                        if (currentPage > 0) {
+                        if (currentPage > 1) {
                             currentPage--
-                            dataResult = loadData(currentPage, pageSize)
-                            paginatedData.clear()
-                            paginatedData.addAll(dataResult.data)
-                            selectedItems.clear()
+                            refreshDataCallback?.invoke()
                         }
+                        allSelected = false // 取消表头选择
                     },
                     onNext = {
-                        if (currentPage < totalPages - 1) {
+                        if (currentPage < totalPages) {
                             currentPage++
-                            dataResult = loadData(currentPage, pageSize)
-                            paginatedData.clear()
-                            paginatedData.addAll(dataResult.data)
-                            selectedItems.clear()
+                            refreshDataCallback?.invoke()
                         }
+                        allSelected = false // 取消表头选择
                     }
                 )
 
@@ -243,11 +263,9 @@ object TableUtils {
                     pageSize = pageSize,
                     onPageSizeChange = { newSize ->
                         pageSize = newSize
-                        currentPage = 0
-                        dataResult = loadData(currentPage, pageSize)
-                        paginatedData.clear()
-                        paginatedData.addAll(dataResult.data)
-                        selectedItems.clear()
+                        currentPage = 1
+                        refreshDataCallback?.invoke()
+                        allSelected = false // 取消表头选择
                     }
                 )
             }
@@ -262,13 +280,11 @@ object TableUtils {
         selectedItems: SnapshotStateList<Int>,
         onDataChange: (Int, String, Any) -> Unit,
         onSelectAllChange: (Boolean) -> Unit,
-        currentPage: Int,
-        pageSize: Int
+        currentPage: Long,
+        pageSize: Long,
+        allSelected: Boolean
     ) {
-        var allSelected by remember { mutableStateOf(false) }
-
         Column {
-
             val newTableForm = tableHead.mapValues { (key, obj) ->
                 TableFormObj(
                     fieldName = key,
@@ -291,12 +307,11 @@ object TableUtils {
                     Checkbox(
                         checked = allSelected,
                         onCheckedChange = { checked ->
-                            allSelected = checked
+                            onSelectAllChange(checked)
                             selectedItems.clear()
                             if (checked) {
                                 selectedItems.addAll(datas.indices)
                             }
-                            onSelectAllChange(checked)
                         },
                         colors = CheckboxDefaults.colors(MaterialTheme.colorScheme.primary)
                     )
@@ -359,12 +374,12 @@ object TableUtils {
         rowIndex: Int,
         selectedItems: SnapshotStateList<Int>,
         onDataChange: (String, Any) -> Unit,
-        currentPage: Int,
-        pageSize: Int
+        currentPage: Long,
+        pageSize: Long
     ) {
         val beanToMap = ObjectUtils.toMap(data)
         val isSelected = rowIndex in selectedItems
-        val globalIndex = currentPage * pageSize + rowIndex + 1
+        val globalIndex = (currentPage - 1) * pageSize + rowIndex + 1
 
         Row(
             modifier = Modifier.border(
@@ -507,10 +522,10 @@ object TableUtils {
                                 ) {
                                     (formObj.type as? FormFieldType.Dropdown)?.options?.forEach { option ->
                                         DropdownMenuItem(
-                                            text = { Text(option.toString()) },
+                                            text = { Text(option.second) },
                                             onClick = {
-                                                selectedOption = option.toString()
-                                                onDataChange(fieldName, option.toString())
+                                                selectedOption = option.first
+                                                onDataChange(fieldName, option.first)
                                                 expanded = false
                                             }
                                         )
@@ -546,14 +561,14 @@ object TableUtils {
     }
 
     @Composable
-    fun PaginationControls(currentPage: Int, totalPages: Int, onPrevious: () -> Unit, onNext: () -> Unit) {
+    fun PaginationControls(currentPage: Long, totalPages: Long, onPrevious: () -> Unit, onNext: () -> Unit) {
         Row(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Button(
                 onClick = onPrevious,
-                enabled = currentPage > 0,
+                enabled = currentPage > 1,
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 shape = RoundedCornerShape(8.dp),
                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
@@ -561,13 +576,13 @@ object TableUtils {
                 Text("上一页", fontSize = 14.sp, color = MaterialTheme.colorScheme.onPrimary)
             }
             Text(
-                "第 ${currentPage + 1} 页，共 $totalPages 页",
+                "第 $currentPage 页，共 $totalPages 页",
                 fontSize = 14.sp,
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
             Button(
                 onClick = onNext,
-                enabled = currentPage < totalPages - 1,
+                enabled = currentPage < totalPages,
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 shape = RoundedCornerShape(8.dp),
                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
@@ -578,9 +593,9 @@ object TableUtils {
     }
 
     @Composable
-    fun PageSizeSelector(pageSize: Int, onPageSizeChange: (Int) -> Unit) {
+    fun PageSizeSelector(pageSize: Long, onPageSizeChange: (Long) -> Unit) {
         var expanded by remember { mutableStateOf(false) }
-        val pageSizes = listOf(10, 20, 30, 40, 50)
+        val pageSizes = listOf(10L, 20L, 30L, 40L, 50L)
 
         Box(modifier = Modifier.wrapContentSize(Alignment.TopEnd)) {
             Row(
@@ -606,5 +621,4 @@ object TableUtils {
             }
         }
     }
-
 }

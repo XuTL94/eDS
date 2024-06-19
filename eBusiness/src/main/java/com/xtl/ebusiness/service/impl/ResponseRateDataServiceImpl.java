@@ -10,5 +10,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class ResponseRateDataServiceImpl extends ServiceImpl<ResponseRateDataMapper, ResponseRateData> implements ResponseRateDataService {
 
+    void a(){
+
+    }
 
 }
