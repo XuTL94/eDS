@@ -20,8 +20,9 @@ import kotlin.math.roundToInt
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DraggableAddDeviceDialogContent(
-    onClose: () -> Unit
-) {
+    onClose: () -> Unit,
+    refreshData: () -> Unit
+){
     var type by remember { mutableStateOf("") }
     var deviceId by remember { mutableStateOf("") }
     var chatName by remember { mutableStateOf("") }
@@ -110,7 +111,6 @@ fun DraggableAddDeviceDialogContent(
             Button(onClick = {
                 val success = addResponseRateData(type, deviceId, chatName)
                 dialogMessage = if (success) {
-                    TableUtils.refreshDataCallback?.invoke()
                     "添加成功"
                 } else {
                     "添加失败"
@@ -132,6 +132,7 @@ fun DraggableAddDeviceDialogContent(
                 title = { Text("结果") },
                 text = { Text(dialogMessage) }
             )
+            refreshData()
         }
     }
 }
