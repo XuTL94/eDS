@@ -1,4 +1,8 @@
-# 1. 商家刷高自动回复率模块  ReplyRateBooster
+# 1. 模拟器相关 simulator
+
+
+
+# 2. 商家刷高自动回复率模块  ReplyRateBooster
 已封装，对应各个平台，只需按步骤填充对应代码即可
 示例:
 - 继承ReplyRateBooster，构造填充对应包名、应用入口

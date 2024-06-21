@@ -15,6 +15,7 @@ fun main() = application {
 
     Window(onCloseRequest = ::exitApplication) {
         AppTheme {
+            ToastUtils.ToastMessage()
             HomeScreen()
         }
     }

@@ -10,10 +10,12 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.rememberWindowState
-import pdd.responserate.datafuntion.ResponseRateTypeOptions
-import pdd.responserate.datafuntion.deleteResponseRateData
-import pdd.responserate.datafuntion.loadResponseRateData
-import pdd.responserate.datafuntion.saveResponseRateData
+import com.xtl.ebusiness.pdd.responserate.funtion.deleteResponseRateData
+import com.xtl.ebusiness.pdd.responserate.funtion.loadResponseRateData
+import com.xtl.ebusiness.pdd.responserate.funtion.saveResponseRateData
+import com.xtl.ebusiness.pdd.responserate.funtion.startTask
+import pdd.responserate.data.*
+import pdd.responserate.data.ResponseRateTypeOptions
 import ui.theme.AppTheme
 
 @Composable
@@ -25,19 +27,22 @@ fun HomeScreen() {
         Spacer(modifier = Modifier.height(16.dp))
 
         val tableHead = mapOf(
-            "type" to TableHeadObj(description = "类型", width = 120.dp),
-            "deviceId" to TableHeadObj(description = "设备ID", width = 160.dp),
+            "simulatorType" to TableHeadObj(description = "模拟器类型", width = 120.dp),
+            "simulatorName" to TableHeadObj(description = "模拟器启动名称", width = 160.dp),
+            "roleType" to TableHeadObj(description = "角色类型", width = 120.dp),
             "chatName" to TableHeadObj(description = "聊天对象名称", width = 200.dp),
             "switch" to TableHeadObj(description = "开关")
         )
 
         val tableForm = mapOf(
-            "type" to TableFormObj(type = FormFieldType.Dropdown(options = ResponseRateTypeOptions)),
-            "deviceId" to TableFormObj(fieldName = "userName", type = FormFieldType.EditableText),
-            "chatName" to TableFormObj(fieldName = "userName", type = FormFieldType.EditableText),
+            "simulatorType" to TableFormObj(type = FormFieldType.Dropdown(options = SimulatorTypeOptions)),
+            "simulatorName" to TableFormObj(type = FormFieldType.EditableText),
+            "roleType" to TableFormObj(type = FormFieldType.Dropdown(options = ResponseRateTypeOptions)),
+            "chatName" to TableFormObj(type = FormFieldType.EditableText),
             "switch" to TableFormObj(
                 type = FormFieldType.SwitchButton { data ->
-                    println("SwitchButton clicked for: $data")
+                    val responseRateDataKot = data as ResponseRateDataKot
+                    startTask(responseRateDataKot)
                 }
             )
         )

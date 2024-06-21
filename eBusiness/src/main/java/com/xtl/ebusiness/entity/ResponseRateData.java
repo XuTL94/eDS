@@ -16,14 +16,19 @@ public class ResponseRateData {
     public String id;
 
     /**
-     * 类型，例如设备或聊天对象（0商家 1顾客）
+     * 模拟器类型 0雷电 1闪现 2机电 等等
      */
-    public String type;
+    public int simulatorType;
 
     /**
-     * 设备ID
+     * 模拟器启动名称
      */
-    public String deviceId;
+    public String simulatorName;
+
+    /**
+     * 类型，例如设备或聊天对象（0商家 1顾客）
+     */
+    public int roleType;
 
     /**
      * 聊天对象名称

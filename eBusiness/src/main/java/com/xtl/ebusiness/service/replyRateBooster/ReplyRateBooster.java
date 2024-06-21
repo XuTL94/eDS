@@ -43,7 +43,7 @@ public abstract class ReplyRateBooster {
      * @param chatName              聊天对象名称
      * @return CommonResult 任务结果
      */
-    protected CommonResult<?> startReplyRateTask(int type,String kimiSystem, String deviceID, String chatName) {
+    public CommonResult<?> startReplyRateTask(int type,String kimiSystem, String deviceID, String chatName) {
 
         if(type==0 && StringUtils.isEmpty(kimiSystem)){
             throw new BusinessException("AI角色定位未输入!");
