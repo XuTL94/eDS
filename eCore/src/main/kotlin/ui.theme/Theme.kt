@@ -247,7 +247,7 @@ fun AppTheme(
 ) {
     // 设置Material主题
     MaterialTheme(
-        colorScheme = lightScheme,
+        colorScheme = lightMediumContrastScheme,
         typography = AppTypography, // 字体样式
         content = content // 内容
     )

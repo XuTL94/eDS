@@ -53,7 +53,7 @@ fun WindowBar(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.primary)
+            .background(MaterialTheme.colorScheme.scrim)
             .height(35.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
