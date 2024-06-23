@@ -20,7 +20,7 @@ public class PddReplyRateBooster extends ReplyRateBooster {
     QuestionAnswerService questionAnswerService;
 
     public PddReplyRateBooster() {
-        super("com.xunmeng.pinduoduo", "com.xunmeng.pinduoduo.ui.activity.MainFrameActivity");
+        super("com.xunmeng.pinduoduo", "com.xunmeng.pinduoduo.ui.activity.MainFrameActivity","com.xunmeng.merchant","com.xunmeng.merchant.ui.MainFrameTabActivity");
     }
 
     @Override
@@ -73,7 +73,7 @@ public class PddReplyRateBooster extends ReplyRateBooster {
                     WebElement lastcontentWebElement = lastcontentWebElements.get(0);
                     List<WebElement> textViews = lastcontentWebElement.findElements(By.xpath(".//android.widget.TextView"));
                     if (!textViews.isEmpty()) {
-                        answer = questionAnswerService.getQuestionAnswer(textViews.get(0).getText()).getAnswer(); //获取第一个 TextView 的文本
+                        answer = questionAnswerService.getAnswer(textViews.get(0).getText()); //获取第一个 TextView 的文本
                         break;
                     }
                 }

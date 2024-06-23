@@ -14,9 +14,7 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.*
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import kotlin.reflect.KMutableProperty1
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.primaryConstructor
@@ -28,7 +26,10 @@ import kotlin.reflect.jvm.isAccessible
 sealed class FormFieldType {
     object Text : FormFieldType()
     object EditableText : FormFieldType()
-    data class SwitchButton(val onClick: ((Any) -> Unit)? = null) : FormFieldType()
+    data class SwitchButton(
+        val onEnable: (suspend (Any) -> Boolean)? = null,
+        val onDisable: (suspend (Any) -> Boolean)? = null
+    ) : FormFieldType()
     data class Dropdown(val options: List<Pair<String, String>>) : FormFieldType()
 }
 
@@ -149,7 +150,7 @@ object TableUtils {
                 Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                     Button(
                         onClick = onAdd,
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHighest),
                         shape = RoundedCornerShape(8.dp),
                         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
                     ) {
@@ -160,7 +161,7 @@ object TableUtils {
                             onSave(paginatedData)
                             refreshDataCallback()
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHighest),
                         shape = RoundedCornerShape(8.dp),
                         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
                     ) {
@@ -171,7 +172,7 @@ object TableUtils {
                             onDelete(paginatedData.filterIndexed { index, _ -> index in selectedItems })
                             refreshDataCallback()
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHighest),
                         shape = RoundedCornerShape(8.dp),
                         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
                     ) {
@@ -285,13 +286,13 @@ object TableUtils {
             }
 
             // 表头渲染
-            Row(modifier = Modifier.background(MaterialTheme.colorScheme.surfaceVariant)) {
+            Row(modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainerLow)) {
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
                         .width(50.dp)
                         .height(46.dp)
-                        .border(width = 0.5.dp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f))
+                        .border(width = 0.1.dp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f))
                         .padding(vertical = 8.dp)
                 ) {
                     Checkbox(
@@ -312,12 +313,12 @@ object TableUtils {
                     modifier = Modifier
                         .width(50.dp)
                         .height(46.dp)
-                        .border(width = 0.5.dp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f))
+                        .border(width = 0.1.dp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f))
                 ) {
                     Text(
                         "序号",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.W600,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.W500,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                 }
@@ -328,11 +329,11 @@ object TableUtils {
                         modifier = Modifier
                             .width(obj.width)
                             .height(46.dp)
-                            .border(width = 0.5.dp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f))
+                            .border(width = 0.1.dp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f))
                     ) {
                         Text(
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.W600,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.W500,
                             text = obj.description,
                             color = MaterialTheme.colorScheme.onSurface
                         )
@@ -526,15 +527,37 @@ object TableUtils {
 
                         is FormFieldType.SwitchButton -> {
                             var selectedState by remember { mutableStateOf(fieldValue.toBoolean()) }
+                            val coroutineScope = rememberCoroutineScope()
+
                             LaunchedEffect(fieldValue) {
                                 selectedState = fieldValue.toBoolean()
                             }
+
                             Switch(
                                 checked = selectedState,
-                                onCheckedChange = {
-                                    selectedState = it
-                                    onDataChange(fieldName, it)
-                                    (formObj.type as? FormFieldType.SwitchButton)?.onClick?.invoke(data)
+                                onCheckedChange = { isChecked ->
+                                    coroutineScope.launch {
+                                        val formSwitchButton = formObj.type as? FormFieldType.SwitchButton
+                                        // 开或者关的回调函数选择
+                                        val onClick = if (isChecked) formSwitchButton?.onEnable else formSwitchButton?.onDisable
+
+                                        if (onClick != null) {
+                                            val success = withContext(Dispatchers.IO) {
+                                                onClick.invoke(data)
+                                            }
+                                            if (success) {
+                                                selectedState = isChecked
+                                                onDataChange(fieldName, isChecked)
+                                            } else {
+                                                // 如果失败，恢复原始状态
+                                                selectedState = !isChecked
+                                                onDataChange(fieldName, !isChecked)
+                                            }
+                                        } else {
+                                            selectedState = isChecked
+                                            onDataChange(fieldName, isChecked)
+                                        }
+                                    }
                                 },
                                 colors = SwitchDefaults.colors(
                                     checkedThumbColor = MaterialTheme.colorScheme.primary,
@@ -559,7 +582,7 @@ object TableUtils {
             Button(
                 onClick = onPrevious,
                 enabled = currentPage > 1,
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
                 shape = RoundedCornerShape(8.dp),
                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
             ) {
@@ -573,7 +596,7 @@ object TableUtils {
             Button(
                 onClick = onNext,
                 enabled = currentPage < totalPages,
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
                 shape = RoundedCornerShape(8.dp),
                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
             ) {

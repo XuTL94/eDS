@@ -1,6 +1,6 @@
 package com.xtl.ebusiness.config;
 
-import com.xtl.ecore.entity.eDSTimer;
+import com.xtl.ecore.entity.EdsTimer;
 import io.appium.java_client.service.local.AppiumDriverLocalService;
 import io.appium.java_client.service.local.AppiumServiceBuilder;
 import lombok.Data;
@@ -24,9 +24,6 @@ import java.util.List;
 public class InitBean implements InitializingBean {
 
     public static URL url;
-
-    // 可控的任务集合
-    public static List<eDSTimer> eDSTimerList = new ArrayList<>();
 
     // appium服务端口
     @Value("${appiumService.port}")

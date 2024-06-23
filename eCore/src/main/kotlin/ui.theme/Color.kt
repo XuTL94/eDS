@@ -44,8 +44,8 @@ import androidx.compose.ui.graphics.Color
 
 // 浅色主题的颜色定义
 object LightColors {
-    val primary = Color(0xFF415F91)
-    val onPrimary = Color(0xFFFFFFFF)
+    val primary = Color(0xFFFFFFFFF)
+    val onPrimary = Color(0xFF415F91)
     val primaryContainer = Color(0xFFD6E3FF)
     val onPrimaryContainer = Color(0xFF001B3E)
     val secondary = Color(0xFF565F71)

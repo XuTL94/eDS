@@ -7,4 +7,4 @@ CREATE TABLE IF NOT EXISTS simulator_paths (
 
 -- 插入模拟器路径数据
 /*INSERT INTO simulator_paths (simulator_type, simulator_path) VALUES
-(0, 'F:\andorid\leidian\LDPlayer9')*/
+(0, 'E:\leidian\LDPlayer9')*/

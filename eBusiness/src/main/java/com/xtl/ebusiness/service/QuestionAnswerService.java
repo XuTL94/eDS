@@ -12,6 +12,13 @@ public interface QuestionAnswerService extends IService<QuestionAnswer> {
      * @param question 问题
      * @return
      */
-    QuestionAnswer getQuestionAnswer(String question);
+    String getAnswer(String question);
+
+    /**
+     * 获取随机问题
+     * @param question  排除当前传过来的问题
+     * @return
+     */
+    String getRandomQuestion(String question);
 
 }

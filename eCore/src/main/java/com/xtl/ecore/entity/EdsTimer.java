@@ -9,12 +9,12 @@ import java.util.TimerTask;
 
 @Data
 @Slf4j
-public class eDSTimer {
+public class EdsTimer {
 
     private String id;
     private Timer timer;
 
-    public eDSTimer() {
+    public EdsTimer() {
         this.id = IdUtil.simpleUUID();
         this.timer = new Timer();
     }

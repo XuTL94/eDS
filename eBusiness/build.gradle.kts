@@ -43,6 +43,9 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:${rootProject.extra["junitVersion"]}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${rootProject.extra["junitVersion"]}")
     annotationProcessor("org.projectlombok:lombok:${rootProject.extra["lombokVersion"]}")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.6.4")
 }
 
 tasks.withType<JavaCompile> {
@@ -68,8 +71,21 @@ compose.desktop {
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "e-commerce"
+            packageName = "eDS"
             packageVersion = "1.0.0"
+
+
+            // 设置程序的图标
+            macOS {
+                iconFile.set(project.file("src/main/resources/icons/icon.icns"))
+            }
+            windows {
+                iconFile.set(project.file("src/main/resources/icons/icon.ico"))
+            }
+            linux {
+                iconFile.set(project.file("src/main/resources/icons/icon.png"))
+            }
+
         }
     }
 }

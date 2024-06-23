@@ -4,7 +4,7 @@ import com.xtl.eSdk.kimi.api.KimiApi;
 import com.xtl.ebusiness.service.QuestionAnswerService;
 import com.xtl.ebusiness.utils.AppiumUtils;
 import com.xtl.ecore.entity.CommonResult;
-import com.xtl.ecore.entity.eDSTimer;
+import com.xtl.ecore.entity.EdsTimer;
 import com.xtl.ecore.exception.BusinessException;
 import com.xtl.ecore.utils.ResultUtils;
 import com.xtl.ecore.utils.SpringUtils;
@@ -14,23 +14,30 @@ import org.openqa.selenium.WebElement;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static com.xtl.ebusiness.config.InitBean.eDSTimerList;
+import static com.xtl.ebusiness.utils.TaskUtils.edsTimerMap;
 
 /**
  * 自动刷高商家回复率
  */
 public abstract class ReplyRateBooster {
 
-    // 应用包名称
-    protected String appPackage;
-    // 应用包启动入口
-    protected String appActivity;
+    // 客户应用包名称
+    protected String userAppPackage;
+    // 客户应用包启动入口
+    protected String userAppActivity;
+
+    // 客户应用包名称
+    protected String businessAppPackage;
+    // 客户应用包启动入口
+    protected String businessAppActivity;
 
     QuestionAnswerService questionAnswerService = SpringUtils.getBean(QuestionAnswerService.class);
 
-    protected ReplyRateBooster(String appPackage, String appActivity) {
-        this.appPackage = appPackage;
-        this.appActivity = appActivity;
+    protected ReplyRateBooster(String userAppPackage, String userAppActivity,String businessAppPackage, String businessAppActivity) {
+        this.userAppPackage = userAppPackage;
+        this.userAppActivity = userAppActivity;
+        this.businessAppPackage = businessAppPackage;
+        this.businessAppActivity = businessAppActivity;
     }
 
 
@@ -51,12 +58,12 @@ public abstract class ReplyRateBooster {
 
 
         AndroidDriver driver = null;
-        eDSTimer timer = null;
+        EdsTimer timer = null;
         String taskId;
         AtomicReference<String> question = new AtomicReference<>();
         try {
             // 启动App
-            driver = startApp(deviceID);
+            driver = startApp(type,deviceID);
 
             // 拉起聊天
             WebElement chatIconElement = getChatIconBoxElement(driver);
@@ -74,9 +81,9 @@ public abstract class ReplyRateBooster {
 
             // 启动定时任务
             final AndroidDriver finalDriver = driver;
-            timer = new eDSTimer();
-            taskId = timer.getId();
-            eDSTimerList.add(timer);
+            timer = new EdsTimer();
+            edsTimerMap.put(timer.getId(),timer);
+
 
             TimerTask task;
             switch (type) {
@@ -84,7 +91,7 @@ public abstract class ReplyRateBooster {
                     task = new TimerTask() {
                         @Override
                         public void run() {
-                            // 顾客是否已回复
+                            // 客户是否已回复
                             String answer = isCustomerReply(finalDriver);
                             if (StringUtils.isNotEmpty(answer)) {
                                 String answerChange = KimiApi.kimiAiChat(kimiSystem, answer);
@@ -101,7 +108,7 @@ public abstract class ReplyRateBooster {
                         public void run() {
                             // 商家回复,则继续问
                             if (isBusinessReply(finalDriver)) {
-                                question.set(questionAnswerService.getQuestionAnswer(question.get()).getQuestion());
+                                question.set(questionAnswerService.getRandomQuestion(question.get()));
                                 editTextBox.sendKeys(question.get());
                                 sendButton.click();
                             }
@@ -122,7 +129,7 @@ public abstract class ReplyRateBooster {
             }
             throw e;
         }
-        return ResultUtils.success(taskId);
+        return ResultUtils.success(timer.getId());
     }
 
 
@@ -134,9 +141,14 @@ public abstract class ReplyRateBooster {
      * @param deviceID 设备ID
      * @return AndroidDriver 实例
      */
-    public AndroidDriver startApp(String deviceID) {
+    public AndroidDriver startApp(int type,String deviceID) {
         String automationName = "UiAutomator2";
         String platformName = "Android";
+
+        String appPackage = (type == 0) ? businessAppPackage : userAppPackage;
+        String appActivity = (type == 0) ? businessAppActivity : userAppActivity;
+
+
         return AppiumUtils.startApp(deviceID, automationName, platformName, appPackage, appActivity);
     }
 
