@@ -7,38 +7,44 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 
+class ToastState {
+    var message by mutableStateOf("")
+    var isSuccess by mutableStateOf(true)
+    var isVisible by mutableStateOf(false)
 
-object ToastUtils {
-    private val toastState = mutableStateOf(ToastState())
-
-    class ToastState {
-        var message by mutableStateOf("")
-        var isSuccess by mutableStateOf(true)
-        var isVisible by mutableStateOf(false)
+    fun showToast(message: String, isSuccess: Boolean) {
+        this.message = message
+        this.isSuccess = isSuccess
+        this.isVisible = true
     }
+}
+
+class ToastUtils {
+    private val toastState = ToastState()
 
     fun success(message: String) {
-        showToast(message, true)
+        toastState.showToast(message, true)
     }
 
     fun error(message: String) {
-        showToast(message, false)
-    }
-
-    private fun showToast(message: String, isSuccess: Boolean) {
-        toastState.value.message = message
-        toastState.value.isSuccess = isSuccess
-        toastState.value.isVisible = true
+        toastState.showToast(message, false)
     }
 
     @Composable
     fun ToastMessage() {
-        val state = toastState.value
-        if (state.isVisible) {
-            Dialog(onDismissRequest = { state.isVisible = false }) {
+        val currentToastState by rememberUpdatedState(toastState)
+
+        LaunchedEffect(currentToastState.isVisible) {
+            if (currentToastState.isVisible) {
+                currentToastState.isVisible = true
+            }
+        }
+
+        if (currentToastState.isVisible) {
+            Dialog(onDismissRequest = { currentToastState.isVisible = false }) {
                 Surface(
                     shape = RoundedCornerShape(8.dp),
-                    color = if (state.isSuccess) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
+                    color = if (currentToastState.isSuccess) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
                     modifier = Modifier
                         .padding(16.dp)
                         .fillMaxWidth()
@@ -49,12 +55,12 @@ object ToastUtils {
                         verticalArrangement = Arrangement.Center
                     ) {
                         Text(
-                            text = state.message,
+                            text = currentToastState.message,
                             color = MaterialTheme.colorScheme.onPrimary,
                             style = MaterialTheme.typography.bodyLarge,
                             modifier = Modifier.padding(bottom = 16.dp)
                         )
-                        Button(onClick = { state.isVisible = false }) {
+                        Button(onClick = { currentToastState.isVisible = false }) {
                             Text("确定")
                         }
                     }
@@ -62,4 +68,11 @@ object ToastUtils {
             }
         }
     }
+}
+
+@Composable
+fun rememberToastUtils(): ToastUtils {
+    val toastUtils = remember { ToastUtils() }
+    toastUtils.ToastMessage() // 确保 ToastMessage 自动挂载
+    return toastUtils
 }

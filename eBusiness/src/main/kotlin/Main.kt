@@ -31,8 +31,6 @@ fun main() = application {
                     )
                 }
 
-                // 主界面内容
-                ToastUtils.ToastMessage()
                 LoadingUtils.LoadingDialog()
                 HomeScreen()
 

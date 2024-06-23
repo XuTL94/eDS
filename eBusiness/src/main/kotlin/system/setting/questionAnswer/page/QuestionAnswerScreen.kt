@@ -2,6 +2,7 @@ package com.xtl.ebusiness.system.setting.questionAnswer.page
 
 import TableFormObj
 import TableHeadObj
+import ToastUtils
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
@@ -13,12 +14,13 @@ import androidx.compose.ui.window.rememberWindowState
 import com.xtl.ebusiness.system.setting.questionAnswer.funtion.deleteQuestionAnswerData
 import com.xtl.ebusiness.system.setting.questionAnswer.funtion.loadQuestionAnswerData
 import com.xtl.ebusiness.system.setting.questionAnswer.funtion.saveQuestionAnswerData
+import rememberToastUtils
 import ui.theme.AppTheme
 
 @Preview
 @Composable
 fun QuestionAnswerScreen() {
-
+    val toastUtils = rememberToastUtils()
     // 控制弹窗是否展示
     var showAddQuestionAnswerDialog by remember { mutableStateOf(false) }
     // 数据重新加载回调函数
@@ -48,19 +50,19 @@ fun QuestionAnswerScreen() {
             onSave = { data ->
                 val result = saveQuestionAnswerData(data)
                 if(result){
-                    ToastUtils.success("保存成功")
+                    toastUtils.success("保存成功")
                     refreshData?.invoke()
                 }else{
-                    ToastUtils.success("保存失败")
+                    toastUtils.success("保存失败")
                 }
             },
             onDelete = { data ->
                 val result = deleteQuestionAnswerData(data)
                 if(result){
-                    ToastUtils.success("删除成功")
+                    toastUtils.success("删除成功")
                     refreshData?.invoke()
                 }else{
-                    ToastUtils.success("删除失败")
+                    toastUtils.error("删除失败")
                 }
             },
             onAdd = {

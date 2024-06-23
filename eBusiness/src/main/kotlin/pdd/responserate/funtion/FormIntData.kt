@@ -1,6 +1,7 @@
 package com.xtl.ebusiness.pdd.responserate.funtion
 
 import FormPageDataResult
+import ToastUtils
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page
 import com.xtl.ebusiness.entity.ResponseRateData
 import com.xtl.ebusiness.service.ResponseRateDataService
@@ -12,6 +13,7 @@ import com.xtl.ecore.utils.SpringUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import pdd.responserate.data.ResponseRateDataKot
+
 
 /**
  * 表格数据加载
@@ -78,7 +80,7 @@ fun deleteResponseRateData(data: List<Any>) : Boolean {
     return responseRateDataService.removeByIds(idsToDelete)
 }
 
-suspend fun startTask(data: ResponseRateDataKot): Boolean {
+suspend fun startTask(data: ResponseRateDataKot,toastUtils: ToastUtils): Boolean {
     val kimiSystem = "我是客服助手，是电商卖家，将我发你的语句转换成其他相同意义，但是语句不一样，简洁优雅，带表情。"
 
     val simulator = SpringUtils.getBean(Simulator::class.java)
@@ -95,14 +97,14 @@ suspend fun startTask(data: ResponseRateDataKot): Boolean {
 
         if (resp.code == ResponseCode.OK.getCode()) {
             data.taskId = resp.result as? String
-            ToastUtils.success("启动成功")
+            toastUtils.success("启动成功")
             true
         } else {
-            ToastUtils.error("启动失败: ${resp.msg}")
+            toastUtils.error("启动失败: ${resp.msg}")
             false
         }
     } catch (e: Exception) {
-        ToastUtils.error(e.message ?: "未知错误")
+        toastUtils.error(e.message ?: "未知错误")
         false
     } finally {
         // 关闭加载对话框
@@ -112,7 +114,7 @@ suspend fun startTask(data: ResponseRateDataKot): Boolean {
     }
 }
 
-suspend fun stopTask(data: ResponseRateDataKot): Boolean {
+suspend fun stopTask(data: ResponseRateDataKot,toastUtils: ToastUtils): Boolean {
     return try {
         withContext(Dispatchers.Main) {
             LoadingUtils.show("关闭中...")
@@ -120,14 +122,14 @@ suspend fun stopTask(data: ResponseRateDataKot): Boolean {
         val resp = TaskUtils.cancelTask(data.taskId)
         if (resp.code == ResponseCode.OK.getCode()) {
             data.taskId = null
-            ToastUtils.success("关闭成功")
+            toastUtils.success("关闭成功")
             true
         } else {
-            ToastUtils.error("关闭失败: ${resp.msg}")
+            toastUtils.error("关闭失败: ${resp.msg}")
             false
         }
     } catch (e: Exception) {
-        ToastUtils.error(e.message ?: "未知错误")
+        toastUtils.error(e.message ?: "未知错误")
         false
     } finally {
         // 关闭加载对话框

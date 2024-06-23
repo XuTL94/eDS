@@ -3,6 +3,7 @@ package pdd.responserate.page
 import DraggableAddDeviceDialogContent
 import TableFormObj
 import TableHeadObj
+import ToastUtils
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -13,10 +14,12 @@ import androidx.compose.ui.window.rememberWindowState
 import com.xtl.ebusiness.pdd.responserate.funtion.*
 import pdd.responserate.data.*
 import pdd.responserate.data.ResponseRateTypeOptions
+import rememberToastUtils
 import ui.theme.AppTheme
 
 @Composable
 fun HomeScreen() {
+    val toastUtils = rememberToastUtils()
     var showAddDeviceDialog by remember { mutableStateOf(false) }
     var refreshData by remember { mutableStateOf<(() -> Unit)?>(null) }
 
@@ -40,11 +43,11 @@ fun HomeScreen() {
                 type = FormFieldType.SwitchButton(
                     onEnable = { data ->
                         val responseRateDataKot = data as ResponseRateDataKot
-                        startTask(responseRateDataKot)
+                        startTask(responseRateDataKot,toastUtils)
                     },
                     onDisable = { data ->
                         val responseRateDataKot = data as ResponseRateDataKot
-                        stopTask(responseRateDataKot)
+                        stopTask(responseRateDataKot,toastUtils)
                     }
                 )
             )
@@ -62,20 +65,20 @@ fun HomeScreen() {
             onSave = { data ->
                 val result = saveResponseRateData(data)
                 if(result){
-                    ToastUtils.success("保存成功")
+                    toastUtils.success("保存成功")
                     refreshData?.invoke()
                 }else{
-                    ToastUtils.success("保存失败")
+                    toastUtils.success("保存失败")
                 }
 
             },
             onDelete = { data ->
                 val result = deleteResponseRateData(data)
                 if(result){
-                    ToastUtils.success("删除成功")
+                    toastUtils.success("删除成功")
                     refreshData?.invoke()
                 }else{
-                    ToastUtils.success("删除失败")
+                    toastUtils.success("删除失败")
                 }
             },
             onAdd = {
