@@ -1,4 +1,4 @@
-package com.xtl.ebusiness.common.questionAnswer.page
+package com.xtl.ebusiness.setting.questionAnswer.page
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -10,49 +10,56 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import com.xtl.ebusiness.entity.ResponseRateData
-import com.xtl.ebusiness.pdd.responserate.funtion.addResponseRateData
-import pdd.responserate.data.ResponseRateTypeOptions
-import pdd.responserate.data.SimulatorTypeOptions
+import androidx.compose.ui.unit.IntOffset
+import com.xtl.ebusiness.entity.QuestionAnswer
+import com.xtl.ebusiness.setting.questionAnswer.funtion.addQuestionAnswerData
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun QuestionAnswerDialog(
+fun AddQuestionAnswerDialog(
     onClose: () -> Unit,
     refreshData: () -> Unit
-){
-    var simulatorType by remember { mutableStateOf("") }
-    var simulatorName by remember { mutableStateOf("") }
-    var type by remember { mutableStateOf("") }
-    var chatName by remember { mutableStateOf("") }
-    var expandedType by remember { mutableStateOf(false) }
-    var expandedSimulatorType by remember { mutableStateOf(false) }
-
-    var offsetX by remember { mutableStateOf(0f) }
-    var offsetY by remember { mutableStateOf(0f) }
+) {
+    var question by remember { mutableStateOf("") }
+    var answer by remember { mutableStateOf("") }
 
     var showAddDate by remember { mutableStateOf(false) }
     var dialogMessage by remember { mutableStateOf("") }
 
-    Column(
+    var offsetX by remember { mutableStateOf(0f) }
+    var offsetY by remember { mutableStateOf(0f) }
 
+    Column(
+        modifier = Modifier
+            .offset { IntOffset(offsetX.roundToInt(), offsetY.roundToInt()) }
+            .pointerInput(Unit) {
+                detectDragGestures { change, dragAmount ->
+                    change.consume()
+                    offsetX += dragAmount.x
+                    offsetY += dragAmount.y
+                }
+            }
+            .padding(16.dp)
+            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
+            .padding(16.dp)
+            .fillMaxWidth()
     ) {
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
-            value = simulatorName,
-            onValueChange = { simulatorName = it },
+            value = question,
+            onValueChange = { question = it },
             label = { Text("问题") },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp)
         )
+
         OutlinedTextField(
-            value = chatName,
-            onValueChange = { chatName = it },
+            value = answer,
+            onValueChange = { answer = it },
             label = { Text("答案") },
             modifier = Modifier
                 .fillMaxWidth()
@@ -71,13 +78,11 @@ fun QuestionAnswerDialog(
             }
             Spacer(modifier = Modifier.width(8.dp))
             Button(onClick = {
-                val responseRateData = ResponseRateData().apply {
-                    this.simulatorType = simulatorType.toInt()
-                    this.simulatorName = simulatorName
-                    this.roleType = type.toInt()
-                    this.chatName = chatName
+                val questionAnswer = QuestionAnswer().apply {
+                    this.question = question
+                    this.answer = answer
                 }
-                val success = addResponseRateData(responseRateData)
+                val success = addQuestionAnswerData(questionAnswer)
                 dialogMessage = if (success) {
                     "添加成功"
                 } else {
@@ -93,7 +98,10 @@ fun QuestionAnswerDialog(
             AlertDialog(
                 onDismissRequest = { showAddDate = false },
                 confirmButton = {
-                    TextButton(onClick = { showAddDate = false; if (dialogMessage == "添加成功") onClose() }) {
+                    TextButton(onClick = {
+                        showAddDate = false
+                        if (dialogMessage == "添加成功") onClose()
+                    }) {
                         Text("确定")
                     }
                 },

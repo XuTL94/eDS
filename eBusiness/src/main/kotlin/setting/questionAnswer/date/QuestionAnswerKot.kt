@@ -1,4 +1,4 @@
-package com.xtl.ebusiness.common.questionAnswer.date
+package com.xtl.ebusiness.setting.questionAnswer.date
 
 
 /**

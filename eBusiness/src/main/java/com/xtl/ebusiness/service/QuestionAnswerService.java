@@ -2,7 +2,6 @@ package com.xtl.ebusiness.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.xtl.ebusiness.entity.QuestionAnswer;
-import org.apache.ibatis.annotations.Mapper;
 
 public interface QuestionAnswerService extends IService<QuestionAnswer> {
 

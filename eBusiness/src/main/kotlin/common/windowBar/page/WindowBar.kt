@@ -33,8 +33,8 @@ fun WindowBar(
     var showSettings by remember { mutableStateOf(false) }
     if (showSettings) {
         val windowState = rememberWindowState(
-            width = 650.dp,
-            height = 500.dp,
+/*            width = 650.dp,
+            height = 500.dp,*/
             position = WindowPosition.Aligned(Alignment.Center)
         )
         Window(

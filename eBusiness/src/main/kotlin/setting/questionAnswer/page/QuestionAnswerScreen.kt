@@ -1,8 +1,8 @@
-package com.xtl.ebusiness.common.questionAnswer.page
+package com.xtl.ebusiness.setting.questionAnswer.page
 
-import DraggableAddDeviceDialogContent
 import TableFormObj
 import TableHeadObj
+import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -10,9 +10,12 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.rememberWindowState
-import com.xtl.ebusiness.pdd.responserate.funtion.*
+import com.xtl.ebusiness.setting.questionAnswer.funtion.deleteQuestionAnswerData
+import com.xtl.ebusiness.setting.questionAnswer.funtion.loadQuestionAnswerData
+import com.xtl.ebusiness.setting.questionAnswer.funtion.saveQuestionAnswerData
 import ui.theme.AppTheme
 
+@Preview
 @Composable
 fun QuestionAnswerScreen() {
 
@@ -25,25 +28,29 @@ fun QuestionAnswerScreen() {
         Spacer(modifier = Modifier.height(16.dp))
 
         val tableHead = mapOf(
-            "question" to TableHeadObj(description = "问题", width = 180.dp),
-            "answer" to TableHeadObj(description = "答案", width = 200.dp),
+            "question" to TableHeadObj(description = "问题", width = 250.dp),
+            "answer" to TableHeadObj(description = "答案", width = 250.dp),
         )
 
         val tableForm = mapOf(
-            "question" to TableFormObj(type = FormFieldType.EditableText),
-            "answer" to TableFormObj(type = FormFieldType.EditableText),
+            "answer" to TableFormObj(type = FormFieldType.EditableText)
         )
 
         TableUtils.EditableTable(
             tableHead = tableHead,
             tableForm = tableForm,
-            loadData = { page, pageSize -> loadResponseRateData(page, pageSize) },
+            loadData = { page, pageSize ->
+                loadQuestionAnswerData(
+                    page,
+                    pageSize
+                )
+            },
             onSave = { data ->
-                saveResponseRateData(data)
+                saveQuestionAnswerData(data)
                 refreshData?.invoke()
             },
             onDelete = { data ->
-                deleteResponseRateData(data)
+                deleteQuestionAnswerData(data)
                 refreshData?.invoke()
             },
             onAdd = {
@@ -66,7 +73,7 @@ fun QuestionAnswerScreen() {
                 state = windowState
             ) {
                 AppTheme {
-                    DraggableAddDeviceDialogContent(
+                    AddQuestionAnswerDialog(
                         onClose = { showAddQuestionAnswerDialog = false },
                         refreshData = {
                             refreshData?.invoke() // 保存成功后刷新表格数据

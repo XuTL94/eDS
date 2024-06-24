@@ -53,7 +53,12 @@ fun HomeScreen() {
         TableUtils.EditableTable(
             tableHead = tableHead,
             tableForm = tableForm,
-            loadData = { page, pageSize -> loadResponseRateData(page, pageSize) },
+            loadData = { page, pageSize ->
+                loadResponseRateData(
+                    page,
+                    pageSize
+                )
+            },
             onSave = { data ->
                 saveResponseRateData(data)
                 refreshData?.invoke()

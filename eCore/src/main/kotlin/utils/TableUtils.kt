@@ -1,7 +1,10 @@
 import androidx.compose.foundation.*
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -10,7 +13,11 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.*
-import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.*
@@ -30,6 +37,7 @@ sealed class FormFieldType {
         val onEnable: (suspend (Any) -> Boolean)? = null,
         val onDisable: (suspend (Any) -> Boolean)? = null
     ) : FormFieldType()
+
     data class Dropdown(val options: List<Pair<String, String>>) : FormFieldType()
 }
 
@@ -417,11 +425,12 @@ object TableUtils {
                         .border(width = 0.5.dp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f))
                 ) {
                     when (formObj.type) {
+
                         is FormFieldType.Text -> Text(text = fieldValue, color = MaterialTheme.colorScheme.onSurface)
+
+
                         is FormFieldType.EditableText -> {
                             var textState by rememberSaveable { mutableStateOf(TextFieldValue(fieldValue)) }
-                            val coroutineScope = rememberCoroutineScope()
-                            var job by remember { mutableStateOf<Job?>(null) }
 
                             LaunchedEffect(fieldValue) {
                                 if (textState.text != fieldValue) {
@@ -429,54 +438,41 @@ object TableUtils {
                                 }
                             }
 
-                            Box(
+                            BasicTextField(
                                 modifier = Modifier
-                                    .clickable { }
-                                    .fillMaxSize()
-                            ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier.fillMaxSize()
-                                ) {
+                                    .fillMaxSize(),
+                                value = textState,
+                                onValueChange = { newValue ->
+                                    textState = newValue
+                                },
+                                textStyle = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onSurface),
+                                singleLine = true,
+                                cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                                decorationBox = { innerTextField ->
                                     Box(
                                         modifier = Modifier
-                                            .weight(1f)
-                                            .padding(horizontal = 10.dp)
-                                            .clipToBounds(),
+                                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)) // Set background for selection
+                                            .clip(RoundedCornerShape(4.dp)), // Optional: clip to round corners
                                         contentAlignment = Alignment.CenterStart
                                     ) {
-                                        BasicTextField(
-                                            value = textState,
-                                            onValueChange = { newValue ->
-                                                textState = newValue
-                                                job?.cancel()
-                                                job = coroutineScope.launch {
-                                                    delay(300) // 延迟300毫秒
-                                                    onDataChange(fieldName, newValue.text)
-                                                }
-                                            },
-                                            textStyle = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onSurface),
-                                            singleLine = true,
-                                            decorationBox = { innerTextField ->
-                                                Box(
-                                                    modifier = Modifier.fillMaxWidth()
-                                                ) {
-                                                    if (textState.text.isEmpty()) {
-                                                        Text("请输入...", color = MaterialTheme.colorScheme.onSurface)
-                                                    }
-                                                    innerTextField()
-                                                }
-                                            }
+                                        if (textState.text.isEmpty()) {
+                                            Text("请输入...", color = MaterialTheme.colorScheme.onSurface)
+                                        }
+                                        innerTextField()
+                                        Icon(
+                                            imageVector = Icons.Default.Edit,
+                                            contentDescription = null,
+                                            modifier = Modifier.align(Alignment.CenterEnd),
+                                            tint = MaterialTheme.colorScheme.onSurface
                                         )
                                     }
-                                    Icon(
-                                        modifier = Modifier.padding(end = 10.dp),
-                                        imageVector = Icons.Default.Edit,
-                                        contentDescription = null
-                                    )
                                 }
-                            }
+                            )
                         }
+
+
+
 
                         is FormFieldType.Dropdown -> {
                             var selectedOption by remember { mutableStateOf(fieldValue) }
@@ -539,7 +535,8 @@ object TableUtils {
                                     coroutineScope.launch {
                                         val formSwitchButton = formObj.type as? FormFieldType.SwitchButton
                                         // 开或者关的回调函数选择
-                                        val onClick = if (isChecked) formSwitchButton?.onEnable else formSwitchButton?.onDisable
+                                        val onClick =
+                                            if (isChecked) formSwitchButton?.onEnable else formSwitchButton?.onDisable
 
                                         if (onClick != null) {
                                             val success = withContext(Dispatchers.IO) {
