@@ -1,41 +1,43 @@
 package com.xtl.ebusiness
 
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.window.WindowDraggableArea
-import androidx.compose.ui.res.painterResource
+import androidx.compose.runtime.*
 import androidx.compose.ui.window.*
-import com.xtl.ebusiness.common.windowBar.page.WindowBar
+import com.xtl.ebusiness.system.windowBar.WindowBar
 import org.springframework.boot.SpringApplication
 import pdd.responserate.page.HomeScreen
 import ui.theme.AppTheme
 
 fun main() = application {
-
     // 启动 Spring Boot 应用程序
     SpringApplication.run(AutomationApplication::class.java)
 
 
     Window(
         onCloseRequest = ::exitApplication,
-        title = "eDS",
-        icon = painterResource("icons/icon.png"),
-        resizable = false,
+        state = rememberWindowState(),
         undecorated = true
     ) {
         AppTheme {
-            // 自定义窗口状态栏
-            WindowDraggableArea {
-                WindowBar(
-                    onMinimize = { window.isMinimized = true },
-                    onClose = { exitApplication() }
-                )
+            Column {
+                // 自定义窗口状态栏
+                WindowDraggableArea {
+                    WindowBar(
+                        onMinimize = { window.isMinimized = true },
+                        onClose = { exitApplication() },
+                        showMoreButton = true
+                    )
+                }
+
+                // 主界面内容
+                ToastUtils.ToastMessage()
+                LoadingUtils.LoadingDialog()
+                HomeScreen()
+
             }
-
-            // 主界面内容
-            ToastUtils.ToastMessage()
-            LoadingUtils.LoadingDialog()
-            HomeScreen()
         }
-
     }
 }
+

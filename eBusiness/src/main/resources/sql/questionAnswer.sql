@@ -1,5 +1,5 @@
 -- 自动回复题库表
-CREATE TABLE IF NOT EXISTS QUESTION_ANSWER (
+CREATE TABLE IF NOT EXISTS question_answer (
     question VARCHAR(255) PRIMARY KEY,  -- 主键，问题
     answer VARCHAR(255) NOT NULL        -- 答案
 );
@@ -11,3 +11,4 @@ CREATE TABLE IF NOT EXISTS QUESTION_ANSWER (
 ('能优惠一点吗', '再见，祝您有美好的一天！'),
 ('包运费险吗', '再见，祝您有美好的一天！'),
 ('多久能到广州', '再见，祝您有美好的一天！')*/
+

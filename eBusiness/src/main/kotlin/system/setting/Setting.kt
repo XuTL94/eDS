@@ -1,26 +1,19 @@
-package com.xtl.ebusiness.common.windowBar.page
+package com.xtl.ebusiness.system.setting
 
-import TableFormObj
-import TableHeadObj
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.window.WindowDraggableArea
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.foundation.layout.*
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.QuestionBank
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
-import androidx.compose.ui.window.rememberWindowState
-import com.xtl.ebusiness.pdd.responserate.funtion.*
-import com.xtl.ebusiness.setting.questionAnswer.page.QuestionAnswerScreen
-import pdd.responserate.data.ResponseRateDataKot
-import pdd.responserate.data.ResponseRateTypeOptions
-import pdd.responserate.data.SimulatorTypeOptions
-import ui.theme.AppTheme
+import com.xtl.ebusiness.system.setting.questionAnswer.page.QuestionAnswerScreen
+import com.xtl.ebusiness.system.windowBar.WindowBar
+
 
 enum class NavigationItem(val title: String, val icon: ImageVector) {
     QUESTION_BANK("问题库", Icons.Filled.QuestionBank),
@@ -69,7 +62,27 @@ fun ContentPanel(selectedItem: NavigationItem) {
     }
 }
 
+// 模拟器环境设置
 @Composable
 fun VmEnvSetupContent() {
     Text("这是虚拟机环境配置页面内容", style = MaterialTheme.typography.bodyLarge)
+}
+
+// 窗口
+@Composable
+fun windowSetting(onClose: () -> Unit) {
+    Window(
+        onCloseRequest = onClose,
+        undecorated = true
+    ) {
+        Column {
+            WindowDraggableArea {
+                WindowBar(
+                    onMinimize = { window.isMinimized = true },
+                    onClose = onClose
+                )
+            }
+            SettingPage()
+        }
+    }
 }

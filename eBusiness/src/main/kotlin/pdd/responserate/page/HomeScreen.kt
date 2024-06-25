@@ -60,12 +60,23 @@ fun HomeScreen() {
                 )
             },
             onSave = { data ->
-                saveResponseRateData(data)
-                refreshData?.invoke()
+                val result = saveResponseRateData(data)
+                if(result){
+                    ToastUtils.success("保存成功")
+                    refreshData?.invoke()
+                }else{
+                    ToastUtils.success("保存失败")
+                }
+
             },
             onDelete = { data ->
-                deleteResponseRateData(data)
-                refreshData?.invoke()
+                val result = deleteResponseRateData(data)
+                if(result){
+                    ToastUtils.success("删除成功")
+                    refreshData?.invoke()
+                }else{
+                    ToastUtils.success("删除失败")
+                }
             },
             onAdd = {
                 showAddDeviceDialog = true

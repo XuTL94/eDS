@@ -1,4 +1,4 @@
-package com.xtl.ebusiness.setting.questionAnswer.page
+package com.xtl.ebusiness.system.setting.questionAnswer.page
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -13,7 +13,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.IntOffset
 import com.xtl.ebusiness.entity.QuestionAnswer
-import com.xtl.ebusiness.setting.questionAnswer.funtion.addQuestionAnswerData
+import com.xtl.ebusiness.system.setting.questionAnswer.funtion.addQuestionAnswerData
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)

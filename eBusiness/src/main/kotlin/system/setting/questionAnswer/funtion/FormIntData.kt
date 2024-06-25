@@ -1,10 +1,10 @@
-package com.xtl.ebusiness.setting.questionAnswer.funtion
+package com.xtl.ebusiness.system.setting.questionAnswer.funtion
 
 import FormPageDataResult
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page
 import com.xtl.ebusiness.entity.QuestionAnswer
 import com.xtl.ebusiness.service.impl.QuestionAnswerServiceImpl
-import com.xtl.ebusiness.setting.questionAnswer.date.QuestionAnswerKot
+import com.xtl.ebusiness.system.setting.questionAnswer.date.QuestionAnswerKot
 import com.xtl.ecore.utils.SpringUtils
 
 /**
@@ -44,7 +44,7 @@ fun addQuestionAnswerData(data: QuestionAnswer): Boolean {
 /**
  * 表格数据保存
  */
-fun saveQuestionAnswerData(data: List<Any>) {
+fun saveQuestionAnswerData(data: List<Any>) : Boolean {
     val questionAnswerService = SpringUtils.getBean(QuestionAnswerServiceImpl::class.java)
     // Any类型数据转换为 QuestionAnswerKot
     val QuestionAnswerDataList = data.filterIsInstance<QuestionAnswerKot>().map { questionAnswerKot ->
@@ -53,14 +53,14 @@ fun saveQuestionAnswerData(data: List<Any>) {
             this.answer = questionAnswerKot.answer
         }
     }
-    questionAnswerService.saveOrUpdateBatch(QuestionAnswerDataList)
+    return questionAnswerService.saveOrUpdateBatch(QuestionAnswerDataList)
 }
 
 /**
  * 表格数据删除
  */
-fun deleteQuestionAnswerData(data: List<Any>) {
+fun deleteQuestionAnswerData(data: List<Any>) : Boolean {
     val questionAnswerService = SpringUtils.getBean(QuestionAnswerServiceImpl::class.java)
     val idsToDelete = data.filterIsInstance<QuestionAnswerKot>().map { it.question }
-    questionAnswerService.removeByIds(idsToDelete)
+    return questionAnswerService.removeByIds(idsToDelete)
 }

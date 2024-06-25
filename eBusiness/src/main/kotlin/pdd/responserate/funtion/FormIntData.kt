@@ -53,7 +53,7 @@ fun addResponseRateData(data: ResponseRateData): Boolean {
 /**
  * 表格数据保存
  */
-fun saveResponseRateData(data: List<Any>) {
+fun saveResponseRateData(data: List<Any>) : Boolean {
     val responseRateDataService = SpringUtils.getBean(ResponseRateDataService::class.java)
 
     // Any类型数据转换为 ResponseRateDataKot
@@ -66,16 +66,16 @@ fun saveResponseRateData(data: List<Any>) {
             this.chatName = responseRateDataKot.chatName
         }
     }
-    responseRateDataService.saveOrUpdateBatch(responseRateDataList)
+    return responseRateDataService.saveOrUpdateBatch(responseRateDataList)
 }
 
 /**
  * 表格数据保存
  */
-fun deleteResponseRateData(data: List<Any>) {
+fun deleteResponseRateData(data: List<Any>) : Boolean {
     val responseRateDataService = SpringUtils.getBean(ResponseRateDataService::class.java)
     val idsToDelete = data.filterIsInstance<ResponseRateDataKot>().map { it.id }
-    responseRateDataService.removeByIds(idsToDelete)
+    return responseRateDataService.removeByIds(idsToDelete)
 }
 
 suspend fun startTask(data: ResponseRateDataKot): Boolean {

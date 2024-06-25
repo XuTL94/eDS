@@ -1,4 +1,4 @@
-package com.xtl.ebusiness.setting.questionAnswer.page
+package com.xtl.ebusiness.system.setting.questionAnswer.page
 
 import TableFormObj
 import TableHeadObj
@@ -10,9 +10,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.rememberWindowState
-import com.xtl.ebusiness.setting.questionAnswer.funtion.deleteQuestionAnswerData
-import com.xtl.ebusiness.setting.questionAnswer.funtion.loadQuestionAnswerData
-import com.xtl.ebusiness.setting.questionAnswer.funtion.saveQuestionAnswerData
+import com.xtl.ebusiness.system.setting.questionAnswer.funtion.deleteQuestionAnswerData
+import com.xtl.ebusiness.system.setting.questionAnswer.funtion.loadQuestionAnswerData
+import com.xtl.ebusiness.system.setting.questionAnswer.funtion.saveQuestionAnswerData
 import ui.theme.AppTheme
 
 @Preview
@@ -46,12 +46,22 @@ fun QuestionAnswerScreen() {
                 )
             },
             onSave = { data ->
-                saveQuestionAnswerData(data)
-                refreshData?.invoke()
+                val result = saveQuestionAnswerData(data)
+                if(result){
+                    ToastUtils.success("保存成功")
+                    refreshData?.invoke()
+                }else{
+                    ToastUtils.success("保存失败")
+                }
             },
             onDelete = { data ->
-                deleteQuestionAnswerData(data)
-                refreshData?.invoke()
+                val result = deleteQuestionAnswerData(data)
+                if(result){
+                    ToastUtils.success("删除成功")
+                    refreshData?.invoke()
+                }else{
+                    ToastUtils.success("删除失败")
+                }
             },
             onAdd = {
                 showAddQuestionAnswerDialog = true
