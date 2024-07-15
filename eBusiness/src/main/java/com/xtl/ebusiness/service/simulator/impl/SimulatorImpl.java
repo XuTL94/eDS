@@ -2,6 +2,7 @@ package com.xtl.ebusiness.service.simulator.impl;
 
 import com.xtl.ebusiness.mapper.CommonMapper;
 import com.xtl.ebusiness.service.simulator.Simulator;
+import com.xtl.ebusiness.service.system.impl.EnConfigImpl;
 import com.xtl.ecore.exception.BusinessException;
 import com.xtl.ecore.utils.CmdUtils;
 import com.xtl.ecore.utils.StringUtils;
@@ -9,14 +10,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 
 @Service
 @Slf4j
@@ -29,7 +26,7 @@ public class SimulatorImpl implements Simulator {
     @Override
     public String startSimulatorByDeviceName(int simulatorType, String deviceName) throws BusinessException {
 
-        String path = commonMapper.querySimulatorPathByType(simulatorType);
+        String path = EnConfigImpl.config.getSimulatorUrl();
         if (StringUtils.isEmpty(path)) {
             throw new BusinessException("模拟器路径未配置" );
         }
