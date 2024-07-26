@@ -32,6 +32,8 @@ allprojects {
         set("appiumVersion", "9.2.2")
         set("seleniumVersion", "4.20.0")
         set("junitVersion", "5.8.2")
+
+        set("modelmapper", "3.2.0")
     }
 }
 
@@ -53,6 +55,10 @@ subprojects {
         // SLF4J 和 Logback 依赖
         "implementation"("org.slf4j:slf4j-api:${rootProject.extra["slf4jVersion"]}")
         "implementation"("ch.qos.logback:logback-classic:${rootProject.extra["logbackVersion"]}")
+
+        // 对象转换工具类
+        "implementation"("org.modelmapper:modelmapper:${rootProject.extra["modelmapper"]}")
+
     }
 
 

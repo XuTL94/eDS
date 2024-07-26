@@ -1,5 +1,6 @@
 package com.xtl.ebusiness.system.setting.environmentConfig.page
 
+import androidx.compose.animation.core.spring
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,6 +13,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.xtl.ebusiness.system.setting.environmentConfig.data.EnvironmentConfigDataKot
+import com.xtl.ebusiness.system.setting.environmentConfig.funtion.querySystemConfig
+import com.xtl.ebusiness.system.setting.environmentConfig.funtion.saveSystemConfig
 import rememberToastUtils
 
 
@@ -22,6 +25,13 @@ fun EnvironmentConfigScreen() {
     var config by remember { mutableStateOf(EnvironmentConfigDataKot()) }
 
     val toastUtils = rememberToastUtils()
+
+    // 使用 LaunchedEffect 来初始化 config
+    LaunchedEffect(Unit) {
+        config = querySystemConfig()
+        println(config.toString())
+    }
+
 
     Column(modifier = Modifier.padding(16.dp).fillMaxWidth()) {
 
@@ -48,7 +58,7 @@ fun EnvironmentConfigScreen() {
 
         Button(
             onClick = {
-                val result = saveConfig(config)
+                val result = saveSystemConfig(config)
                 if (result) {
                     toastUtils.success("保存成功")
                 } else {

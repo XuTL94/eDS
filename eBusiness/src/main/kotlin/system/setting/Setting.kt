@@ -11,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.QuestionBank
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.ui.window.Window
+import com.xtl.ebusiness.system.setting.environmentConfig.page.EnvironmentConfigScreen
 import com.xtl.ebusiness.system.setting.questionAnswer.page.QuestionAnswerScreen
 import com.xtl.ebusiness.system.windowBar.WindowBar
 
@@ -57,15 +58,9 @@ fun ContentPanel(selectedItem: NavigationItem) {
     ) {
         when (selectedItem) {
             NavigationItem.QUESTION_BANK -> QuestionAnswerScreen()
-            NavigationItem.VM_ENV_SETUP -> VmEnvSetupContent()
+            NavigationItem.VM_ENV_SETUP -> EnvironmentConfigScreen()
         }
     }
-}
-
-// 模拟器环境设置
-@Composable
-fun VmEnvSetupContent() {
-    Text("这是虚拟机环境配置页面内容", style = MaterialTheme.typography.bodyLarge)
 }
 
 // 窗口

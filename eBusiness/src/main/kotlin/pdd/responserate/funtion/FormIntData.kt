@@ -81,7 +81,6 @@ fun deleteResponseRateData(data: List<Any>) : Boolean {
 }
 
 suspend fun startTask(data: ResponseRateDataKot,toastUtils: ToastUtils): Boolean {
-    val kimiSystem = "我是客服助手，是电商卖家，将我发你的语句转换成其他相同意义，但是语句不一样，简洁优雅，带表情。"
 
     val simulator = SpringUtils.getBean(Simulator::class.java)
     val pddReplyRateBooster = SpringUtils.getBean(PddReplyRateBooster::class.java)
@@ -93,7 +92,7 @@ suspend fun startTask(data: ResponseRateDataKot,toastUtils: ToastUtils): Boolean
 
         var deviceId = simulator.startSimulatorByDeviceName(data.simulatorType, data.simulatorName)
 
-        val resp = pddReplyRateBooster.startReplyRateTask(data.roleType, kimiSystem, deviceId, data.chatName)
+        val resp = pddReplyRateBooster.startReplyRateTask(data.roleType, deviceId, data.chatName)
 
         if (resp.code == ResponseCode.OK.getCode()) {
             data.taskId = resp.result as? String

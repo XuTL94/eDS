@@ -1,42 +1,49 @@
 package com.xtl.ebusiness.system.setting.environmentConfig.funtion
 
-import FormPageDataResult
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page
-import com.xtl.ebusiness.entity.QuestionAnswer
-import com.xtl.ebusiness.service.impl.QuestionAnswerServiceImpl
-import com.xtl.ebusiness.system.setting.questionAnswer.date.QuestionAnswerKot
+import cn.hutool.json.JSONUtil
+import com.xtl.ebusiness.entity.EnvironmentConfig
+import com.xtl.ebusiness.service.system.impl.EnConfigImpl
+import com.xtl.ebusiness.system.setting.environmentConfig.data.EnvironmentConfigDataKot
 import com.xtl.ecore.utils.SpringUtils
+import org.modelmapper.ModelMapper
+import org.modelmapper.convention.MatchingStrategies
 
-/**
- * 表格数据加载
- */
-fun loadConfigData(page: Long, pageSize: Long): FormPageDataResult<QuestionAnswerKot> {
-    val questionAnswerService = SpringUtils.getBean(QuestionAnswerServiceImpl::class.java)
-    val pageRequest = Page<QuestionAnswer>(page, pageSize)
-    val pageResult: Page<QuestionAnswer> = questionAnswerService.page(pageRequest)
+val modelMapper = ModelMapper()
 
-    val data = pageResult.records.map { record ->
-        QuestionAnswerKot(
-            question = record.question,
-            answer = record.answer
-        )
+
+
+fun main() {
+    val modelMapper = ModelMapper().apply {
+        configuration.matchingStrategy = MatchingStrategies.STRICT
     }
 
-    return FormPageDataResult(count = pageResult.total.toInt(), data = data)
+    val environmentConfig = EnvironmentConfig().apply {
+        simulatorUrl = "test_url"
+        kimiKey = "test_key"
+        roleDesc = "test_desc"
+    }
+
+    val environmentConfigDataKot = modelMapper.map(environmentConfig, EnvironmentConfigDataKot::class.java)
+
+    println(environmentConfigDataKot.simulatorUrl)  // 应该输出 "test_url"
+    println(environmentConfigDataKot.kimiKey)       // 应该输出 "test_key"
+    println(environmentConfigDataKot.roleDesc)      // 应该输出 "test_desc"
+}
+/**
+ * 查询系统环境配置
+ */
+fun querySystemConfig(): EnvironmentConfigDataKot {
+    val enConfigImpl = SpringUtils.getBean(EnConfigImpl::class.java)
+    val environmentConfig = enConfigImpl.querySystemConfig()
+    var map = modelMapper.map(environmentConfig, EnvironmentConfigDataKot::class.java)
+    return modelMapper.map(environmentConfig, EnvironmentConfigDataKot::class.java)
 }
 
-
 /**
- * 表格数据保存
+ * 更新系统环境变量
  */
-fun saveConfigData(data: List<Any>) : Boolean {
-    val questionAnswerService = SpringUtils.getBean(QuestionAnswerServiceImpl::class.java)
-    // Any类型数据转换为 QuestionAnswerKot
-    val QuestionAnswerDataList = data.filterIsInstance<QuestionAnswerKot>().map { questionAnswerKot ->
-        QuestionAnswer().apply {
-            this.question = questionAnswerKot.question
-            this.answer = questionAnswerKot.answer
-        }
-    }
-    return questionAnswerService.saveOrUpdateBatch(QuestionAnswerDataList)
+fun saveSystemConfig(vo: EnvironmentConfigDataKot): Boolean {
+    val enConfigImpl = SpringUtils.getBean(EnConfigImpl::class.java)
+    val environmentConfig = modelMapper.map(vo, EnvironmentConfig::class.java)
+    return enConfigImpl.saveSystemConfig(environmentConfig)
 }

@@ -2,6 +2,7 @@ package com.xtl.ebusiness.service.replyRateBooster;
 
 import com.xtl.eSdk.kimi.api.KimiApi;
 import com.xtl.ebusiness.service.QuestionAnswerService;
+import com.xtl.ebusiness.service.system.impl.EnConfigImpl;
 import com.xtl.ebusiness.utils.AppiumUtils;
 import com.xtl.ecore.entity.CommonResult;
 import com.xtl.ecore.entity.EdsTimer;
@@ -45,14 +46,15 @@ public abstract class ReplyRateBooster {
      * 公共方法，组装并执行自动聊天任务
      *
      * @param type                  类型 0商家  1顾客
-     * @param kimiSystem            如果type=0商家,则需要传这个
      * @param deviceID              设备ID
      * @param chatName              聊天对象名称
      * @return CommonResult 任务结果
      */
-    public CommonResult<?> startReplyRateTask(int type,String kimiSystem, String deviceID, String chatName) {
-
-        if(type==0 && StringUtils.isEmpty(kimiSystem)){
+    public CommonResult<?> startReplyRateTask(int type, String deviceID, String chatName) {
+        // 如果type=0商家,则需要这个角色
+        String roleDesc = EnConfigImpl.config.getRoleDesc();
+        String kimiKey = EnConfigImpl.config.getKimiKey();
+        if(type==0 && StringUtils.isEmpty(roleDesc)){
             throw new BusinessException("AI角色定位未输入!");
         }
 
@@ -94,7 +96,7 @@ public abstract class ReplyRateBooster {
                             // 客户是否已回复
                             String answer = isCustomerReply(finalDriver);
                             if (StringUtils.isNotEmpty(answer)) {
-                                String answerChange = KimiApi.kimiAiChat(kimiSystem, answer);
+                                String answerChange = KimiApi.kimiAiChat(roleDesc,kimiKey,answer);
                                 editTextBox.sendKeys(answerChange);
                                 sendButton.click();
                             }

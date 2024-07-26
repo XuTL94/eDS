@@ -11,17 +11,16 @@ import org.springframework.web.client.RestTemplate;
 public class KimiApi {
 
     private static final String KIMI_CHAT_URL = "https://api.moonshot.cn/v1/chat/completions";
-    private static final String KIMI_AUTH_TOKEN = "sk-iaaPlHllSKqfA69VF7xMZ8QT7D2TVquC09fgHBN9MhnPPvcg";
 
     private static final String KIMI_MODEL = "moonshot-v1-8k";
 
-    public static String kimiAiChat(String systemMessage, String userMessage) {
+    public static String kimiAiChat(String systemMessage, String kimiKey,String userMessage) {
         String content = "";
         try {
             RestTemplate restTemplate = SpringUtils.getBean("restTemplate");
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.set("Authorization", KIMI_AUTH_TOKEN);
+            headers.set("Authorization", kimiKey);
 
             String requestBody = String.format("{ \"model\": \"%s\", \"messages\": [ { \"role\": \"system\", \"content\": \"%s\" }, { \"role\": \"user\", \"content\": \"%s\" } ], \"temperature\": %f }", KIMI_MODEL, systemMessage, userMessage, 0.3);
 

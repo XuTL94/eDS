@@ -14,6 +14,7 @@ dependencies {
     // implementation("org.jetbrains.compose.material3:material3:${rootProject.extra["material3Version"]}")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa:2.6.5")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.17.1")
+
 }
 
 tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
